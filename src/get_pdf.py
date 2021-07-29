@@ -1,23 +1,22 @@
 import requests
 import os
-from utils import datebd_today
 
-def download(pdf_url : str, pdf_out_folder : str = "../pdf"):
+def download(pdf_url : str, pdf_out_path : str) -> bool :
     req = requests.get(pdf_url)
     if req.status_code == 404 : 
-        return None
+        return False
 
-    out_path = os.path.join(pdf_out_folder, pdf_url.split("/")[-1])
-    with open(out_path, "wb+") as fout :
+    with open(pdf_out_path, "wb+") as fout :
         fout.write(req.content)
-        return out_path
+        return True
 
-if __name__ == "__main__":
-    if not os.path.exists("../pdf") : os.mkdir("../pdf")
-    day, month, year = datebd_today()
-    for d in range(1, day):
-        file_name = f"{str(d).zfill(2)}{str(month).zfill(2)}{str(year)[-2:]}.pdf"
-        PDF_URL_BASE = f"https://media.thaigov.go.th/uploads/public_img/source/{file_name}"
-        pdf = download(PDF_URL_BASE)
-        if not pdf :
-            print("PDF not avalible", file_name)
+def ensure_pdf(datebd : str) -> bool :
+    day,month,year = datebd[:2],datebd[2:4],datebd[-2:]
+    file_name = f"{str(day).zfill(2)}{str(month).zfill(2)}{str(year)[-2:]}.pdf"
+    pdf_path = os.path.join("../pdf", file_name)
+    if not os.path.exists(pdf_path) :
+        pdf_url = f"https://media.thaigov.go.th/uploads/public_img/source/{file_name}"
+        pdf = download(pdf_url,pdf_path)
+        if pdf : print("Downloaded:", file_name)
+        return pdf
+    return True
