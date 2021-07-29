@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import pdfplumber
 import glob
+import os
 
 def find_cluster_page(pdf_path : str) -> set : 
     pages = set()
@@ -40,6 +41,7 @@ def extract_cluster(pdf_path : str, pages : set) -> pd.DataFrame:
     return df
 
 if __name__ == "__main__":
+    if not os.path.exists("./json") : os.mkdir("./json")
     for pdf_path in sorted(glob.glob("../pdf/*")):
         print("Processing:", pdf_path)
         file_name = pdf_path.split("/")[-1].split(".")[0]

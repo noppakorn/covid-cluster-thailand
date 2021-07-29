@@ -13,6 +13,7 @@ def download(pdf_url : str, pdf_out_folder : str = "../pdf"):
         return out_path
 
 if __name__ == "__main__":
+    if not os.path.exists("../pdf") : os.mkdir("../pdf")
     day, month, year = datebd_today()
     for d in range(1, day):
         file_name = f"{str(d).zfill(2)}{str(month).zfill(2)}{str(year)[-2:]}.pdf"
