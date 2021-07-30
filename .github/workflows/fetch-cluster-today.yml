@@ -1,4 +1,4 @@
-name: fetch-cluster-data
+name: fetch-cluster-today
 on:
   schedule:
     - cron: '0 1 * * *'
@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 jobs:
   fetch-cluster-data:
-    name: Fetch Cluster Data
+    name: Fetch Today Cluster Data
     runs-on: ubuntu-latest
     steps:
       - name: Checkout current version
