@@ -3,7 +3,7 @@ on:
   schedule:
     - cron: '0 1 * * *'
     - cron: '0 6 * * *'
-  workflow-dispatch:
+  workflow_dispatch:
 jobs:
   fetch-cluster-data:
     name: Sync docs
