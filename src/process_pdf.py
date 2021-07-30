@@ -54,6 +54,7 @@ def extract_cluster(pdf_path : str, pages : set) -> pd.DataFrame:
             pdf_page = pdf.pages[i]
             table = pdf_page.extract_table(table_settings={"vertical_strategy": "lines", "horizontal_strategy": "lines"})[1:]
             df = df.append(table).reset_index(drop=True)
+    print(df)
     df = df.replace(r'^\s*$', np.nan, regex=True)
     df[0] = df[0].ffill()
     df[5] = df[5].ffill()

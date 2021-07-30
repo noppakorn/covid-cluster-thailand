@@ -1,8 +1,6 @@
 from process_pdf import *
 
 if __name__ == "__main__":
-    if not os.path.exists("../json") : os.mkdir("./json")
-
     day,month,year = datebd_today()
     for d in range(1, day+1):
         file_name = f"{str(d).zfill(2)}{str(month).zfill(2)}{str(year)[-2:]}.pdf"
