@@ -14,6 +14,11 @@ jobs:
         uses: szenius/set-timezone@v1.0
         with:
           timezoneLinux: 'Asia/Bangkok'
+      - name : Cache pip
+        uses: actions/cache@v2
+        with:
+          path: ~/.cache/pip
+          key: ${{ hashFiles('requirements.txt') }}
       - name: Generate cluster data json from pdf
         working-directory: ./src
         run: |
