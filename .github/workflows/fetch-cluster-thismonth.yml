@@ -8,8 +8,6 @@ jobs:
     steps:
       - name: Checkout current version
         uses: actions/checkout@v2
-      - name: Setup Python Requirements
-        run : pip install -r requirements.txt
       - name: Set Timezone to Bangkok/Thailand
         uses: szenius/set-timezone@v1.0
         with:
@@ -19,6 +17,8 @@ jobs:
         with:
           path: ~/.cache/pip
           key: ${{ hashFiles('requirements.txt') }}
+      - name: Setup Python Requirements
+        run : pip install -r requirements.txt
       - name: Generate cluster data json from pdf
         working-directory: ./src
         run: |
