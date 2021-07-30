@@ -13,6 +13,7 @@ def download(pdf_url : str, pdf_out_path : str) -> bool :
 def ensure_pdf(datebd : str) -> bool :
     day,month,year = datebd[:2],datebd[2:4],datebd[-2:]
     file_name = f"{str(day).zfill(2)}{str(month).zfill(2)}{str(year)[-2:]}.pdf"
+    if not os.path.exists("../pdf") : os.mkdir("../pdf")
     pdf_path = os.path.join("../pdf", file_name)
     if not os.path.exists(pdf_path) :
         pdf_url = f"https://media.thaigov.go.th/uploads/public_img/source/{file_name}"
