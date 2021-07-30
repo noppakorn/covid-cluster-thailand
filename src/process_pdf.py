@@ -94,6 +94,7 @@ if __name__ == "__main__":
         cluster_page = find_cluster_page(pdf_path)
         if len(cluster_page) > 0 :
             df = extract_cluster(pdf_path, cluster_page)
+            if not os.path.exists("../json") : os.mkdir("../json")
             df.to_json(f"../json/cluster-data-{bdday_to_date(file_name)}.json", force_ascii=False, orient="records", indent=2)
         else : 
             print("Cluster page not found:", pdf_path)
