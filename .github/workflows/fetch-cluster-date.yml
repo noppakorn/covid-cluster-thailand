@@ -6,11 +6,13 @@ on:
   workflow_dispatch:
 jobs:
   fetch-cluster-data:
-    name: Sync docs
+    name: Fetch Cluster Data
     runs-on: ubuntu-latest
     steps:
       - name: Checkout current version
         uses: actions/checkout@v2
+      - name: Setup Python Requirements
+        run : pip install -r requirements.txt
       - name: Generate cluster data json from pdf
         working-directory: ./src
         run: |
