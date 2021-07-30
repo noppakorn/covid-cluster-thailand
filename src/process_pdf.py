@@ -64,7 +64,7 @@ def extract_cluster(pdf_path : str, pages : set) -> pd.DataFrame:
     df_startdate = df["StartDate"].str.split(expand=True)
     df_startdate[1] = df_startdate[1].replace(THAIMONTH_TO_MONTH)
     df_startdate[2] = "2021"
-    df["StartDate"] = df_startdate[2] + "-" + df_startdate[1] + "-" + df_startdate[0]
+    df["StartDate"] = df_startdate[2] + "-" + df_startdate[1] + "-" + df_startdate[0].str.zfill(2)
 
     # Correct province name typo
     df_invalid_province = df[(~df["PROVINCE_TH"].isin(PROVINCE_TH))]
