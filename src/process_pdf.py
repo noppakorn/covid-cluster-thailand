@@ -80,7 +80,7 @@ def extract_cluster(pdf_path : str, pages : set) -> pd.DataFrame:
 
 
 if __name__ == "__main__":
-    if not os.path.exists("./json") : os.mkdir("./json")
+    if not os.path.exists("../json") : os.mkdir("./json")
 
     day,month,year = datebd_today()
     file_name = f"{str(day).zfill(2)}{str(month).zfill(2)}{str(year)[-2:]}.pdf"
@@ -94,7 +94,7 @@ if __name__ == "__main__":
         cluster_page = find_cluster_page(pdf_path)
         if len(cluster_page) > 0 :
             df = extract_cluster(pdf_path, cluster_page)
-            df.to_json(f"json/{bdday_to_date(file_name)}.json", force_ascii=False, orient="records", indent=2)
+            df.to_json(f"../json/cluster-data-{bdday_to_date(file_name)}.json", force_ascii=False, orient="records", indent=2)
         else : 
             print("Cluster page not found:", pdf_path)
 
