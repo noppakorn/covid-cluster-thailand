@@ -3,7 +3,9 @@
 # About
 - Extract Clusters from [Thailand Daily COVID-19 briefing PDF](https://www.thaigov.go.th/news/contents/details/29299)
 - Download latest data [Here](https://raw.github.com/wiki/noppakorn/covid-cluster-thailand/cluster-data.json).
-- Data will be updated at `13:00 (UTC+7)` everyday.
+- Data will be updated daily at `13:00 (UTC+7)`.
+- Historical data is stored in the root of the wiki with the file name `cluster-data-{YYYY}-{MM}-{DD}.json`. For example `cluster-data-2021-07-01.json`.
+- Historical data dates back to `2021-07-01`.
 # Requirements
 - requests
 - pandas
