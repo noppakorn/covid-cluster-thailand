@@ -3,7 +3,9 @@ import numpy as np
 import pdfplumber
 import json
 import os
-from utils import datebd_today,bdday_to_date,find_similar_word
+import re
+from utils import datebd_today,bdday_to_date,district_correction,\
+                  district_th_to_en,find_similar_word
 from get_pdf import ensure_pdf
 
 THAIMONTH_TO_MONTH = {
@@ -32,8 +34,7 @@ COL_TO_NAME = {
 
 PROVINCE_TH_TO_EN = json.load(open("../province_details/province-th-to-en.json", encoding="utf-8"))
 PROVINCE_TH = PROVINCE_TH_TO_EN.keys()
-
-PROVINCE_DISTRICT = json.load(open("../province_details/th-province-district.json", encoding="utf-8"))
+PROVINCE_TO_DISTRICT = json.load(open("../province_details/th-province-district.json", encoding="utf-8"))
 
 def find_cluster_page(pdf_path : str) -> set : 
     pages = set()
@@ -66,7 +67,16 @@ def extract_cluster(pdf_path : str, pages : set) -> pd.DataFrame:
     df_startdate[2] = "2021"
     df["StartDate"] = df_startdate[2] + "-" + df_startdate[1] + "-" + df_startdate[0].str.zfill(2)
 
-    # Correct province name typo
+    # Replace newline in cell with space
+    regex_newline = re.compile(r"\n")
+    df.replace(regex_newline, " ", inplace=True)
+
+    # Correction for "ำ" cannot be read properly from PDF
+    regex_aum = re.compile(r" า")
+    df["PlaceOfOutbreak"].replace(regex_aum, "ำ", inplace=True)
+    df["DISTRICT_TH"].replace(regex_aum, "ำ", inplace=True)
+
+    # Province name correction (Will cover "ำ" case as well)
     df_invalid_province = df[(~df["PROVINCE_TH"].isin(PROVINCE_TH))]
     if len(df_invalid_province) > 0 :
         # Replace by finding most similar province
@@ -76,12 +86,16 @@ def extract_cluster(pdf_path : str, pages : set) -> pd.DataFrame:
         print(df[(~df["PROVINCE_TH"].isin(PROVINCE_TH))])
 
     df["PROVINCE_EN"] = df["PROVINCE_TH"].map(PROVINCE_TH_TO_EN)
-    return df[["PROVINCE_TH", "PROVINCE_EN", "DISTRICT_TH", "PlaceOfOutbreak", "StartDate", "NewCases", "Total"]]
 
+    # District name correction (Just in case)
+
+    df["DISTRICT_TH"] = df.apply(lambda row : district_correction(row["DISTRICT_TH"], row["PROVINCE_TH"], PROVINCE_TO_DISTRICT), axis=1)
+    # Add district in english
+    df["DISTRICT_EN"] = df.apply(lambda row : district_th_to_en(row["DISTRICT_TH"], row["PROVINCE_TH"], PROVINCE_TO_DISTRICT), axis=1)
+
+    return df[["PROVINCE_TH", "PROVINCE_EN", "DISTRICT_TH", "DISTRICT_EN", "PlaceOfOutbreak", "StartDate", "NewCases", "Total"]]
 
 if __name__ == "__main__":
-    if not os.path.exists("../json") : os.mkdir("./json")
-
     day,month,year = datebd_today()
     file_name = f"{str(day).zfill(2)}{str(month).zfill(2)}{str(year)[-2:]}.pdf"
     pdf_path = os.path.join("../pdf", file_name)
