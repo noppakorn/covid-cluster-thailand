@@ -1,7 +1,7 @@
 import requests
 import os
 
-def download(pdf_url : str, pdf_out_path : str) -> bool :
+def download_pdf(pdf_url : str, pdf_out_path : str) -> bool :
     req = requests.get(pdf_url)
     if req.status_code == 404 : 
         return False
@@ -17,7 +17,7 @@ def ensure_pdf(datebd : str) -> bool :
     pdf_path = os.path.join("../pdf", file_name)
     if not os.path.exists(pdf_path) :
         pdf_url = f"https://media.thaigov.go.th/uploads/public_img/source/{file_name}"
-        pdf = download(pdf_url,pdf_path)
+        pdf = download_pdf(pdf_url,pdf_path)
         if pdf : print("Downloaded:", file_name)
         return pdf
     return True

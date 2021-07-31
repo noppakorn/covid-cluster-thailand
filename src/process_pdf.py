@@ -5,7 +5,7 @@ import json
 import os
 import re
 import datetime
-from utils import datebd_today,bdday_to_date,district_correction,\
+from utils import bdday_to_date,district_correction,\
                   district_th_to_en,find_similar_word
 from get_pdf import ensure_pdf
 
@@ -88,6 +88,7 @@ def extract_cluster(pdf_path : str, pages : set) -> pd.DataFrame:
         print(df[(~df["PROVINCE_TH"].isin(PROVINCE_TH))])
 
     df["PROVINCE_EN"] = df["PROVINCE_TH"].map(PROVINCE_TH_TO_EN)
+    df["PROVINCE_EN"] = df["PROVINCE_EN"].where(pd.notnull(df["PROVINCE_EN"]), None)
 
     # District name correction (Just in case)
 
@@ -95,11 +96,13 @@ def extract_cluster(pdf_path : str, pages : set) -> pd.DataFrame:
     # Add district in english
     df["DISTRICT_EN"] = df.apply(lambda row : district_th_to_en(row["DISTRICT_TH"], row["PROVINCE_TH"], PROVINCE_TO_DISTRICT), axis=1)
 
+    regex_comma = re.compile(r",")
+    df[["NewCases", "Total"]] = df[["NewCases", "Total"]].replace(regex_comma,"").astype(int)
+
     return df[["PROVINCE_TH", "PROVINCE_EN", "DISTRICT_TH", "DISTRICT_EN", "PlaceOfOutbreak", "StartDate", "NewCases", "Total"]]
 
-if __name__ == "__main__":
-    day,month,year = datebd_today()
-    file_name = f"{str(day).zfill(2)}{str(month).zfill(2)}{str(year)[-2:]}.pdf"
+def extract_cluster_at_date(dto : datetime.datetime) -> bool :
+    file_name = f"{str(dto.day).zfill(2)}{str(dto.month).zfill(2)}{str(dto.year+543)[-2:]}.pdf"
     pdf_path = os.path.join("../pdf", file_name)
 
     ensured = ensure_pdf(file_name.split(".")[0])
@@ -112,13 +115,21 @@ if __name__ == "__main__":
             df = extract_cluster(pdf_path, cluster_page)
             if not os.path.exists("../json") : os.mkdir("../json")
             json_dict = {
-                "UpdatedDate": bdday_to_date(file_name),
+                "UpdatedDate": str(dto.date),
                 "ClusterData": df.to_dict(orient="records")
             }
             with open(f"../json/cluster-data-{bdday_to_date(file_name)}.json", "w+", encoding="utf-8") as json_file :
                 json.dump(json_dict, json_file, ensure_ascii=False, indent=2)
         else : 
             print("Cluster page not found:", pdf_path)
+            return False
 
     else :
         print("PDF not avalible:", file_name)
+        return False
+
+    return True
+
+
+if __name__ == "__main__":
+    extract_cluster_at_date(datetime.datetime.now())
