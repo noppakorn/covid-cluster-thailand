@@ -4,9 +4,11 @@ import pdfplumber
 import json
 import os
 import re
+import datetime
 from utils import datebd_today,bdday_to_date,district_correction,\
                   district_th_to_en,find_similar_word
 from get_pdf import ensure_pdf
+
 
 THAIMONTH_TO_MONTH = {
     "ม.ค.": "01",
@@ -109,7 +111,12 @@ if __name__ == "__main__":
         if len(cluster_page) > 0 :
             df = extract_cluster(pdf_path, cluster_page)
             if not os.path.exists("../json") : os.mkdir("../json")
-            df.to_json(f"../json/cluster-data-{bdday_to_date(file_name)}.json", force_ascii=False, orient="records", indent=2)
+            json_dict = {
+                "UpdatedDate": bdday_to_date(file_name),
+                "ClusterData": df.to_dict(orient="records")
+            }
+            with open(f"../json/cluster-data-{bdday_to_date(file_name)}.json", "w+", encoding="utf-8") as json_file :
+                json.dump(json_dict, json_file, ensure_ascii=False, indent=2)
         else : 
             print("Cluster page not found:", pdf_path)
 
