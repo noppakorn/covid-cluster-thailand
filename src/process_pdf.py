@@ -115,7 +115,7 @@ def extract_cluster_at_date(dto : datetime.datetime) -> bool :
             df = extract_cluster(pdf_path, cluster_page)
             if not os.path.exists("../json") : os.mkdir("../json")
             json_dict = {
-                "UpdatedDate": str(dto.date),
+                "UpdatedDate": str(dto.date()),
                 "ClusterData": df.to_dict(orient="records")
             }
             with open(f"../json/cluster-data-{bdday_to_date(file_name)}.json", "w+", encoding="utf-8") as json_file :
