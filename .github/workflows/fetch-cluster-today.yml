@@ -25,6 +25,9 @@ jobs:
         working-directory: ./src
         run: |
           python process_pdf.py
+      - name: Copy processed data to latest json
+        working-directory: ./json
+        run: cp cluster-data-* cluster-data.json
       - name: Upload json to wiki
         uses: kai-tub/external-repo-sync-action@v1
         with:
