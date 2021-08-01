@@ -24,18 +24,7 @@ THAIMONTH_TO_MONTH = {
     "พ.ย.": "11",
     "ธ.ค.": "12",
 }
-
-COL_TO_NAME = {
-    0 : "PROVINCE_TH",
-    1 : "DISTRICT_TH",
-    2 : "PlaceOfOutbreak",
-    3 : "StartDate",
-    4 : "NewCases",
-    5 : "Total"
-}
-
 PROVINCE_TH_TO_EN = json.load(open("../province_details/province-th-to-en.json", encoding="utf-8"))
-PROVINCE_TH = PROVINCE_TH_TO_EN.keys()
 PROVINCE_TO_DISTRICT = json.load(open("../province_details/th-province-district.json", encoding="utf-8"))
 
 def find_cluster_page(pdf_path : str) -> set : 
@@ -57,12 +46,19 @@ def extract_cluster(pdf_path : str, pages : set) -> pd.DataFrame:
             pdf_page = pdf.pages[i]
             table = pdf_page.extract_table(table_settings={"vertical_strategy": "lines", "horizontal_strategy": "lines"})[1:]
             df = df.append(table).reset_index(drop=True)
-    df = df.replace(r'^\s*$', np.nan, regex=True)
-    df[0] = df[0].ffill()
-    df[5] = df[5].ffill()
-    df = df.dropna().reset_index(drop=True)
 
-    df = df.rename(columns=COL_TO_NAME)
+    df = df.rename(columns={
+        0 : "PROVINCE_TH",
+        1 : "DISTRICT_TH",
+        2 : "PlaceOfOutbreak",
+        3 : "StartDate",
+        4 : "NewCases",
+        5 : "Total"
+    })
+    df = df.replace(r'^\s*$', np.nan, regex=True)
+    df["PROVINCE_TH"] = df["PROVINCE_TH"].ffill()
+    df["Total"] = df["Total"].ffill()
+    df = df.dropna().reset_index(drop=True)
     df["Total"] = df["Total"].str.split(expand=True)[0]
     df_startdate = df["StartDate"].str.split(expand=True)
     df_startdate[1] = df_startdate[1].replace(THAIMONTH_TO_MONTH)
@@ -79,13 +75,14 @@ def extract_cluster(pdf_path : str, pages : set) -> pd.DataFrame:
     df["DISTRICT_TH"].replace(regex_aum, "ำ", inplace=True)
 
     # Province name correction (Will cover "ำ" case as well)
-    df_invalid_province = df[(~df["PROVINCE_TH"].isin(PROVINCE_TH))]
+    province_th = PROVINCE_TH_TO_EN.keys()
+    df_invalid_province = df[(~df["PROVINCE_TH"].isin(province_th))]
     if len(df_invalid_province) > 0 :
         # Replace by finding most similar province
-        df_invalid_correted = df_invalid_province["PROVINCE_TH"].apply(lambda pro : find_similar_word(pro, PROVINCE_TH))
+        df_invalid_correted = df_invalid_province["PROVINCE_TH"].apply(lambda pro : find_similar_word(pro, province_th))
         df.update(df_invalid_correted)
         print("Uncorrectable Province:")
-        print(df[(~df["PROVINCE_TH"].isin(PROVINCE_TH))])
+        print(df[(~df["PROVINCE_TH"].isin(province_th))])
 
     df["PROVINCE_EN"] = df["PROVINCE_TH"].map(PROVINCE_TH_TO_EN)
     df["PROVINCE_EN"] = df["PROVINCE_EN"].where(pd.notnull(df["PROVINCE_EN"]), None)
@@ -132,4 +129,4 @@ def extract_cluster_at_date(dto : datetime.datetime) -> bool :
 
 
 if __name__ == "__main__":
-    extract_cluster_at_date(datetime.datetime.now())
+    result = extract_cluster_at_date(datetime.datetime.now())
