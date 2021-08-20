@@ -1,4 +1,6 @@
 # Thailand COVID-19 Cluster Data Extraction
+**Cluster data not published in briefing PDF anymore. GitHub Actions for this repo is suspend indefinitely**
+
 ![fetch-cluster-today](https://github.com/noppakorn/covid-cluster-thailand/actions/workflows/fetch-cluster-today.yml/badge.svg)
 ## About
 - Extract Clusters from [Thailand Daily COVID-19 briefing PDF](https://www.thaigov.go.th/news/contents/details/29299)
