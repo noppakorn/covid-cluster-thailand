@@ -1,9 +1,9 @@
 name: fetch-cluster-today
 on:
-  schedule:
-    - cron: '00 06 * * *'
-    - cron: '00 07 * * *'
-    - cron: '00 08 * * *'
+  #schedule:
+    #- cron: '00 06 * * *'
+    #- cron: '00 07 * * *'
+    #- cron: '00 08 * * *'
   workflow_dispatch:
 jobs:
   fetch-cluster-data: 
